@@ -17,7 +17,7 @@ class RubyDdp::Client < Faye::WebSocket::Client
   end
   
   def connect
-    dosend(:msg => :connect, :version => 'pre1', :support => ['pre1'])
+    dosend(:msg => :connect, :version => '1', :support => ['1'])
   end
   
   def call(method, params = [], &blk)
@@ -48,6 +48,7 @@ protected
 
     self.onmessage = lambda do |event|
       data = JSON.parse(event.data)
+      puts data # Debug output
       if data.has_key?('msg')
         
         # TODO: 'error', 'nosub'
@@ -58,6 +59,16 @@ protected
           self.onconnect.call(event)
         
         # collections
+        when 'added'
+          name = data['collection']
+          id = data['id']
+          @collections[name] ||= {}
+          @collections[name][id] ||= {}
+          
+          data['fields'].each do |key, value|
+            @collections[name][id][key] = value
+          end
+
         when 'data'
           if data.has_key?('collection')
             name = data['collection']
@@ -75,19 +86,19 @@ protected
                 @collections[name][id].delete(key)
               end
             end
-            
-          # subscription ready
-          elsif data.has_key?('subs')
-            data['subs'].each do |id|
-              cb = @_callbacks[id]
-              cb.call() if cb
-            end
           end
           
         # method callbacks
         when 'result'
           cb = @_callbacks[data['id']]
           cb.call(data['error'], data['result']) if cb
+
+        # subscription ready
+        when 'ready'
+          data['subs'].each do |id|
+            cb = @_callbacks[id]
+            cb.call() if cb
+          end
         end
       end
     end
