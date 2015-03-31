@@ -14,6 +14,7 @@ class RubyDdp::Client < Faye::WebSocket::Client
     @_callbacks = {}
     @_next_id = 0
     @collections = {}
+    @observe_callbacks = {}
   end
   
   def connect
@@ -31,6 +32,15 @@ class RubyDdp::Client < Faye::WebSocket::Client
     self.dosend(:msg => 'sub', :id => id, :name => name, :params => params)
     @_callbacks[id] = blk
   end
+
+  def observe(collection_name, events, &callback)
+    Array(events).each do |event|
+      @observe_callbacks[event] ||= {}
+      puts "adding callback for event '#{event}' on collection '#{collection_name}'"
+      @observe_callbacks[event][collection_name] = callback
+    end
+  end
+
 protected
   def next_id
     (@_next_id += 1).to_s
@@ -59,7 +69,7 @@ protected
           self.onconnect.call(event)
         
         # collections
-        when 'added'
+        when 'added', 'changed'
           name = data['collection']
           id = data['id']
           @collections[name] ||= {}
@@ -67,6 +77,10 @@ protected
           
           data['fields'].each do |key, value|
             @collections[name][id][key] = value
+          end
+
+          if @observe_callbacks[data['msg']] && @observe_callbacks[data['msg']][name]
+            @observe_callbacks[data['msg']][name].call data['fields']
           end
 
         when 'data'
