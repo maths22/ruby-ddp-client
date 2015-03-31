@@ -80,7 +80,7 @@ protected
           end
 
           if @observe_callbacks[data['msg']] && @observe_callbacks[data['msg']][name]
-            @observe_callbacks[data['msg']][name].call data['fields']
+            @observe_callbacks[data['msg']][name].call id, data['fields']
           end
 
         when 'data'
