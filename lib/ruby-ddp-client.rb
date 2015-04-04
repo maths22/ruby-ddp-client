@@ -75,8 +75,10 @@ protected
           @collections[name] ||= {}
           @collections[name][id] ||= {}
           
-          data['fields'].each do |key, value|
-            @collections[name][id][key] = value
+          if data['fields'] # might not be the case, e.g., if a collection was added
+            data['fields'].each do |key, value|
+              @collections[name][id][key] = value
+            end
           end
 
           if @observe_callbacks[data['msg']] && @observe_callbacks[data['msg']][name]
