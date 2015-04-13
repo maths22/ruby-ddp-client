@@ -85,6 +85,17 @@ protected
             @observe_callbacks[data['msg']][name].call id, data['fields']
           end
 
+        when 'removed'
+          name = data['collection']
+          id = data['id']
+          @collections[name] ||= {}
+          
+          @collections[name].delete(id)
+
+          if @observe_callbacks[data['msg']] && @observe_callbacks[data['msg']][name]
+            @observe_callbacks[data['msg']][name].call id, data['fields']
+          end
+
         when 'data'
           if data.has_key?('collection')
             name = data['collection']
