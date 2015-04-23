@@ -132,6 +132,7 @@ protected
 
     self.onclose = lambda do |close|
       puts [:close, close.code, close.reason]
+      self.connect()
     end
 
     self.onerror = lambda do |error|
