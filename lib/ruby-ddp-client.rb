@@ -126,6 +126,9 @@ protected
             cb = @_callbacks[id]
             cb.call() if cb
           end
+
+        when 'ping'
+          self.dosend(:msg => 'pong')
         end
       end
     end
