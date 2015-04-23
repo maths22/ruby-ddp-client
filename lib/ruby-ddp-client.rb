@@ -130,7 +130,12 @@ protected
       end
     end
 
-    self.onclose = lambda do |event|
+    self.onclose = lambda do |close|
+      puts [:close, close.code, close.reason]
+    end
+
+    self.onerror = lambda do |error|
+      puts [:error, error.message]
     end
   end
 end
