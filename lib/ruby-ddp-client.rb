@@ -7,8 +7,8 @@ class RubyDdp::Client < Faye::WebSocket::Client
   attr_accessor :onconnect
   attr_accessor :collections
   
-  def initialize(host, port = 3000, path = 'websocket')
-    super("http://#{host}:#{port}/#{path}")
+  def initialize(...)
+    super(...)
     self.init_event_handlers()
     
     @_callbacks = {}
@@ -36,7 +36,7 @@ class RubyDdp::Client < Faye::WebSocket::Client
   def observe(collection_name, events, &callback)
     Array(events).each do |event|
       @observe_callbacks[event] ||= {}
-      puts "adding callback for event '#{event}' on collection '#{collection_name}'"
+      # puts "adding callback for event '#{event}' on collection '#{collection_name}'"
       @observe_callbacks[event][collection_name] = callback
     end
   end
@@ -58,7 +58,7 @@ protected
 
     self.onmessage = lambda do |event|
       data = JSON.parse(event.data)
-      puts data # Debug output
+      # puts data # Debug output
       if data.has_key?('msg')
         
         # TODO: 'error', 'nosub'
@@ -134,12 +134,12 @@ protected
     end
 
     self.onclose = lambda do |close|
-      puts [:close, close.code, close.reason]
+      # puts [:close, close.code, close.reason]
       self.connect()
     end
 
     self.onerror = lambda do |error|
-      puts [:error, error.message]
+      # puts [:error, error.message]
     end
   end
 end
